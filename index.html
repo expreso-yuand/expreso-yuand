@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Servicio Escolar Yuand</title>
-    <h1>Servicio Escolar YUAND EXPRESS</h1>
+    <title>Expreso Yuand</title>
     <style>
         :root { --primary: #6366f1; --success: #22c55e; --dark: #0f172a; }
         body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 20px; }
         .card { background: white; color: var(--dark); padding: 20px; border-radius: 20px; width: 100%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; }
         h2 { color: var(--primary); margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
         
@@ -20,24 +20,33 @@
         .btn-print { background: var(--primary); color: white; }
         .btn-add { background: #e2e8f0; color: var(--dark); font-size: 0.8rem; }
         
-        .history-item { background: #1e293b; padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; width: 100%; max-width: 450px; }
+        .history-item { background: #1e293b; padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; flex-direction: column; width: 100%; max-width: 450px; }
+        .history-item div { display: flex; justify-content: space-between; width: 100%; }
+        .history-inst { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
         .admin-section { border-top: 2px dashed #cbd5e1; margin-top: 20px; padding-top: 20px; }
     </style>
 </head>
 <body>
 
+<h1>Servicio Escolar YUAND EXPRESS</h1>
+
 <!-- SECCIÓN DE VENTAS -->
 <div class="card">
     <h2>Recibo de pago</h2>
     <div class="field">
-        <label>Estudiante</label>
+        <label>SELECCIONAR PASAJERO GUARDADO</label>
         <select id="selectPasajeros">
             <option value="">-- Seleccionar --</option>
         </select>
     </div>
     <div class="field">
-        <label>NOMBRE (EDITABLE)</label>
+        <label>NOMBRE DEL ESTUDIANTE</label>
         <input type="text" id="nombreVenta">
+    </div>
+    <!-- NUEVO CAMPO INSTITUCIÓN EN VENTAS -->
+    <div class="field">
+        <label>INSTITUCIÓN / COLEGIO</label>
+        <input type="text" id="institucionVenta">
     </div>
     <div class="field">
         <label>TARIFA ($)</label>
@@ -46,11 +55,15 @@
     <button class="btn btn-print" id="btnImprimir">IMPRIMIR Y GUARDAR</button>
 </div>
 
-<!-- SECCIÓN DE ADMINISTRACIÓN (Aquí agregas nombres) -->
+<!-- SECCIÓN DE ADMINISTRACIÓN -->
 <div class="card admin-section">
-    <h2>GESTIONAR PASAJEROS</h2>
+    <h2>👥 GESTIONAR PASAJEROS</h2>
     <div class="field">
-        <input type="text" id="nuevoNombre" placeholder="Nombre del nuevo cliente">
+        <input type="text" id="nuevoNombre" placeholder="Nombre del nuevo estudiante">
+    </div>
+    <!-- NUEVO CAMPO INSTITUCIÓN EN GESTIÓN -->
+    <div class="field">
+        <input type="text" id="nuevaInstitucion" placeholder="Nombre del Colegio/Institución">
     </div>
     <div class="field">
         <input type="number" id="nuevoPrecio" placeholder="Precio sugerido" step="0.01">
@@ -76,21 +89,29 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- 1. GESTIÓN DE CLIENTES (LISTA DESPLEGABLE) ---
+    // --- 1. GESTIÓN DE CLIENTES ---
     
-    // Guardar nuevo cliente en la nube
     document.getElementById('btnGuardarCliente').addEventListener('click', async () => {
         const nombre = document.getElementById('nuevoNombre').value;
+        const institucion = document.getElementById('nuevaInstitucion').value;
         const precio = document.getElementById('nuevoPrecio').value;
-        if(nombre && precio) {
-            await addDoc(collection(db, "clientes"), { nombre, precio: parseFloat(precio) });
+        
+        if(nombre && institucion && precio) {
+            // Guardamos con el nuevo campo 'institucion'
+            await addDoc(collection(db, "clientes"), { 
+                nombre, 
+                institucion, 
+                precio: parseFloat(precio) 
+            });
             document.getElementById('nuevoNombre').value = "";
+            document.getElementById('nuevaInstitucion').value = "";
             document.getElementById('nuevoPrecio').value = "";
-            alert("Cliente guardado en la nube");
+            alert("Estudiante guardado");
+        } else {
+            alert("Por favor llena todos los campos");
         }
     });
 
-    // Cargar clientes en el select automáticamente
     onSnapshot(collection(db, "clientes"), (snapshot) => {
         const select = document.getElementById('selectPasajeros');
         select.innerHTML = '<option value="">-- Seleccionar --</option>';
@@ -99,17 +120,18 @@
             const opt = document.createElement('option');
             opt.value = data.nombre;
             opt.dataset.precio = data.precio;
-            opt.textContent = `${data.nombre} ($${data.precio})`;
+            opt.dataset.inst = data.institucion; // Guardamos la institución en el dataset
+            opt.textContent = `${data.nombre} (${data.institucion})`;
             select.appendChild(opt);
         });
     });
 
-    // Al elegir del select, rellenar los campos de arriba
     document.getElementById('selectPasajeros').addEventListener('change', (e) => {
         const opt = e.target.options[e.target.selectedIndex];
         if(opt.value) {
             document.getElementById('nombreVenta').value = opt.value;
             document.getElementById('montoVenta').value = opt.dataset.precio;
+            document.getElementById('institucionVenta').value = opt.dataset.inst;
         }
     });
 
@@ -117,17 +139,25 @@
 
     document.getElementById('btnImprimir').addEventListener('click', async () => {
         const nombre = document.getElementById('nombreVenta').value;
+        const institucion = document.getElementById('institucionVenta').value;
         const monto = parseFloat(document.getElementById('montoVenta').value);
         const fecha = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        if (nombre && monto) {
-            await addDoc(collection(db, "viajes"), { nombre, monto, timestamp: new Date(), hora: fecha });
-            let ticket = `--------------------------------\n      EXPRESO YUAND\n--------------------------------\nHORA: ${fecha}\nCLIENTE: ${nombre.toUpperCase()}\nTOTAL: $${monto.toFixed(2)}\n--------------------------------\n      ¡BUEN VIAJE!\n\n\n`;
+        if (nombre && institucion && monto) {
+            await addDoc(collection(db, "viajes"), { 
+                nombre, 
+                institucion, 
+                monto, 
+                timestamp: new Date(), 
+                hora: fecha 
+            });
+            
+            let ticket = `--------------------------------\n      EXPRESO YUAND\n--------------------------------\nHORA: ${fecha}\nESTUDIANTE: ${nombre.toUpperCase()}\nINST: ${institucion.toUpperCase()}\nTOTAL: $${monto.toFixed(2)}\n--------------------------------\n      ¡BUEN VIAJE!\n\n\n`;
+            
             window.location.href = "intent:#Intent;component=ru.a402nd.rawbt/.ActivityPrint;S.text=" + encodeURIComponent(ticket) + ";end;";
         }
     });
 
-    // Historial de viajes en tiempo real
     const qVentas = query(collection(db, "viajes"), orderBy("timestamp", "desc"));
     onSnapshot(qVentas, (snapshot) => {
         const lista = document.getElementById('listaHistorial');
@@ -136,7 +166,10 @@
             const v = doc.data();
             const item = document.createElement('div');
             item.className = 'history-item';
-            item.innerHTML = `<span>${v.nombre}</span><b>$${v.monto.toFixed(2)}</b>`;
+            item.innerHTML = `
+                <div><span>${v.nombre}</span><b>$${v.monto.toFixed(2)}</b></div>
+                <div class="history-inst">${v.institucion || 'Sin institución'}</div>
+            `;
             lista.appendChild(item);
         });
     });
