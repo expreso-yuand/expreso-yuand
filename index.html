@@ -3,79 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expreso Yuand</title>
+    <title>Yuand Express | Elite Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #6366f1; --success: #22c55e; --dark: #0f172a; }
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        
-        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 20px; }
-        .card { background: white; color: var(--dark); padding: 20px; border-radius: 20px; width: 100%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; }
-        h2 { color: var(--primary); margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
-        
-        .field { margin-bottom: 15px; }
-        label { display: block; font-size: 0.75rem; font-weight: bold; color: #64748b; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 10px; box-sizing: border-box; }
-        
-        .btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 5px; }
-        .btn-print { background: var(--primary); color: white; }
-        .btn-add { background: #e2e8f0; color: var(--dark); font-size: 0.8rem; }
-        
-        .history-item { background: #1e293b; padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; flex-direction: column; width: 100%; max-width: 450px; }
-        .history-item div { display: flex; justify-content: space-between; width: 100%; }
-        .history-inst { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
-        .admin-section { border-top: 2px dashed #cbd5e1; margin-top: 20px; padding-top: 20px; }
+        :root {
+            --cream: #fdfaf5;
+            --gold: #c5a059;
+            --gold-dark: #a67c37;
+            --forest: #1a2f23;
+            --text: #2c2c2c;
+            --border: #e5d9c5;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cream);
+            background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 460px;
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: var(--forest);
+            margin: 0;
+            letter-spacing: 3px;
+            border-bottom: 2px solid var(--gold);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 4px; /* Estilo clásico más recto */
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 15px 15px 30px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover { transform: translateY(-5px); }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--forest));
+        }
+
+        .label {
+            display: block;
+            font-family: 'Playfair Display', serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--forest);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input, select {
+            width: 100%;
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 0;
+            font-size: 1rem;
+            color: var(--text);
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 8px rgba(197, 160, 89, 0.2);
+            background: var(--cream);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: var(--forest);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            padding: 16px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            letter-spacing: 2px;
+        }
+
+        .btn-primary:hover {
+            background: var(--gold);
+            color: var(--forest);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-add {
+            background: transparent;
+            color: var(--forest);
+            border: 1px solid var(--forest);
+            padding: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-add:hover { background: var(--forest); color: white; }
+
+        /* Historial Estilo Sello */
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-left: 3px solid var(--gold);
+            background: white;
+            margin-bottom: 10px;
+            animation: fadeInRight 0.5s ease backwards;
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .history-info b { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--forest); }
+        .history-info span { font-size: 0.75rem; color: var(--gold-dark); font-weight: 600; }
+        .history-price { font-family: 'Playfair Display', serif; font-weight: 700; color: var(--forest); }
+
     </style>
 </head>
 <body>
 
-<h1>Servicio Escolar YUAND EXPRESS</h1>
+<div class="container">
+    <div class="header">
+        <h1>Yuand Express</h1>
+        <p style="font-family: 'Playfair Display'; font-style: italic; color: var(--gold-dark);">Servicio Escolar</p>
+    </div>
 
-<!-- SECCIÓN DE VENTAS -->
-<div class="card">
-    <h2>Recibo de pago</h2>
-    <div class="field">
-        <label>SELECCIONAR PASAJERO GUARDADO</label>
+    <!-- SECCIÓN DE VENTAS -->
+    <div class="card">
+        <label class="label">Registro</label>
         <select id="selectPasajeros">
             <option value="">-- Seleccionar --</option>
         </select>
-    </div>
-    <div class="field">
-        <label>NOMBRE DEL ESTUDIANTE</label>
-        <input type="text" id="nombreVenta">
-    </div>
-    <!-- NUEVO CAMPO INSTITUCIÓN EN VENTAS -->
-    <div class="field">
-        <label>INSTITUCIÓN / COLEGIO</label>
-        <input type="text" id="institucionVenta">
-    </div>
-    <div class="field">
-        <label>TARIFA ($)</label>
-        <input type="number" id="montoVenta" step="0.01">
-    </div>
-    <button class="btn btn-print" id="btnImprimir">IMPRIMIR Y GUARDAR</button>
-</div>
 
-<!-- SECCIÓN DE ADMINISTRACIÓN -->
-<div class="card admin-section">
-    <h2>👥 GESTIONAR PASAJEROS</h2>
-    <div class="field">
-        <input type="text" id="nuevoNombre" placeholder="Nombre del nuevo estudiante">
-    </div>
-    <!-- NUEVO CAMPO INSTITUCIÓN EN GESTIÓN -->
-    <div class="field">
-        <input type="text" id="nuevaInstitucion" placeholder="Nombre del Colegio/Institución">
-    </div>
-    <div class="field">
-        <input type="number" id="nuevoPrecio" placeholder="Precio sugerido" step="0.01">
-    </div>
-    <button class="btn btn-add" id="btnGuardarCliente">+ AGREGAR A LA LISTA</button>
-</div>
+        <label class="label">Estudiante</label>
+        <input type="text" id="nombreVenta" placeholder="Nombre completo">
+        
+        <label class="label">Institución Académica</label>
+        <input type="text" id="institucionVenta" placeholder="">
+        
+        <label class="label">Tarifa del Servicio ($)</label>
+        <input type="number" id="montoVenta" placeholder="0.00">
 
-<div id="listaHistorial" style="width:100%; max-width:450px;"></div>
+        <button class="btn-primary" id="btnImprimir">Imprimir</button>
+    </div>
+
+    <!-- SECCIÓN DE GESTIÓN -->
+    <div class="card" style="background: rgba(26, 47, 35, 0.02);">
+        <label class="label" style="font-size: 0.7rem;">Gestión de Directorio</label>
+        <input type="text" id="nuevoNombre" placeholder="Nuevo Estudiante">
+        <input type="text" id="nuevaInstitucion" placeholder="Institución">
+        <input type="number" id="nuevoPrecio" placeholder="Precio Estándar">
+        <button class="btn-add" id="btnGuardarCliente">Añadir</button>
+    </div>
+
+    <div id="listaHistorial"></div>
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCJiaaUF3aLHbhEYJcOtHo9uGIUKEzBrqs",
@@ -89,39 +219,28 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- 1. GESTIÓN DE CLIENTES ---
-    
+    // --- LÓGICA DE GUARDADO ---
     document.getElementById('btnGuardarCliente').addEventListener('click', async () => {
         const nombre = document.getElementById('nuevoNombre').value;
         const institucion = document.getElementById('nuevaInstitucion').value;
         const precio = document.getElementById('nuevoPrecio').value;
-        
         if(nombre && institucion && precio) {
-            // Guardamos con el nuevo campo 'institucion'
-            await addDoc(collection(db, "clientes"), { 
-                nombre, 
-                institucion, 
-                precio: parseFloat(precio) 
-            });
-            document.getElementById('nuevoNombre').value = "";
-            document.getElementById('nuevaInstitucion').value = "";
-            document.getElementById('nuevoPrecio').value = "";
-            alert("Estudiante guardado");
-        } else {
-            alert("Por favor llena todos los campos");
+            await addDoc(collection(db, "clientes"), { nombre, institucion, precio: parseFloat(precio) });
+            ['nuevoNombre', 'nuevaInstitucion', 'nuevoPrecio'].forEach(id => document.getElementById(id).value = "");
         }
     });
 
+    // --- CARGAR SELECT ---
     onSnapshot(collection(db, "clientes"), (snapshot) => {
         const select = document.getElementById('selectPasajeros');
-        select.innerHTML = '<option value="">-- Seleccionar --</option>';
+        select.innerHTML = '<option value="">-- Seleccionar de Archivo --</option>';
         snapshot.forEach(doc => {
-            const data = doc.data();
+            const d = doc.data();
             const opt = document.createElement('option');
-            opt.value = data.nombre;
-            opt.dataset.precio = data.precio;
-            opt.dataset.inst = data.institucion; // Guardamos la institución en el dataset
-            opt.textContent = `${data.nombre} (${data.institucion})`;
+            opt.value = d.nombre;
+            opt.dataset.precio = d.precio;
+            opt.dataset.inst = d.institucion;
+            opt.textContent = `${d.nombre} (${d.institucion})`;
             select.appendChild(opt);
         });
     });
@@ -135,40 +254,55 @@
         }
     });
 
-    // --- 2. GESTIÓN DE VENTAS E IMPRESIÓN ---
-
+    // --- IMPRESIÓN ---
     document.getElementById('btnImprimir').addEventListener('click', async () => {
         const nombre = document.getElementById('nombreVenta').value;
-        const institucion = document.getElementById('institucionVenta').value;
+        const inst = document.getElementById('institucionVenta').value;
         const monto = parseFloat(document.getElementById('montoVenta').value);
-        const fecha = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const ahora = new Date();
+        const fecha = ahora.toLocaleDateString();
+        const hora = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        if (nombre && institucion && monto) {
-            await addDoc(collection(db, "viajes"), { 
-                nombre, 
-                institucion, 
-                monto, 
-                timestamp: new Date(), 
-                hora: fecha 
-            });
+        if (nombre && inst && monto) {
+            await addDoc(collection(db, "viajes"), { nombre, institucion: inst, monto, timestamp: ahora, hora });
             
-            let ticket = `--------------------------------\n      EXPRESO YUAND\n--------------------------------\nHORA: ${fecha}\nESTUDIANTE: ${nombre.toUpperCase()}\nINST: ${institucion.toUpperCase()}\nTOTAL: $${monto.toFixed(2)}\n--------------------------------\n      ¡BUEN VIAJE!\n\n\n`;
+            let ticket = `
+         YUAND EXPRESS
+      ESTADO DE CUENTA
+      -------------------------
+      FECHA: ${fecha}
+      HORA:  ${hora}
+      -------------------------
+      ESTUDIANTE:
+      ${nombre.toUpperCase()}
+
+      INSTITUCION:
+      ${inst.toUpperCase()}
+
+      TOTAL PAGADO: $${monto.toFixed(2)}
+      -------------------------
+      SERVICIO PREFERENCIAL\n\n\n`;
             
             window.location.href = "intent:#Intent;component=ru.a402nd.rawbt/.ActivityPrint;S.text=" + encodeURIComponent(ticket) + ";end;";
         }
     });
 
-    const qVentas = query(collection(db, "viajes"), orderBy("timestamp", "desc"));
-    onSnapshot(qVentas, (snapshot) => {
+    // --- HISTORIAL ---
+    const q = query(collection(db, "viajes"), orderBy("timestamp", "desc"), limit(4));
+    onSnapshot(q, (snapshot) => {
         const lista = document.getElementById('listaHistorial');
-        lista.innerHTML = '<h3 style="text-align:center">HISTORIAL DE HOY</h3>';
-        snapshot.forEach(doc => {
+        lista.innerHTML = '<p style="font-family:Cinzel; font-size:0.7rem; color:var(--gold-dark); text-align:center; margin-bottom:15px;">Bitácora Reciente</p>';
+        snapshot.forEach((doc, index) => {
             const v = doc.data();
             const item = document.createElement('div');
             item.className = 'history-item';
+            item.style.animationDelay = (index * 0.1) + 's';
             item.innerHTML = `
-                <div><span>${v.nombre}</span><b>$${v.monto.toFixed(2)}</b></div>
-                <div class="history-inst">${v.institucion || 'Sin institución'}</div>
+                <div class="history-info">
+                    <b>${v.nombre}</b>
+                    <span>${v.institucion}</span>
+                </div>
+                <div class="history-price">$${v.monto.toFixed(2)}</div>
             `;
             lista.appendChild(item);
         });
