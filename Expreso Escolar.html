@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expreso Yuand Cloud v3</title>
+    <style>
+        :root { --primary: #6366f1; --success: #22c55e; --dark: #0f172a; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .card { background: white; color: var(--dark); padding: 20px; border-radius: 20px; width: 100%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; }
+        h2 { color: var(--primary); margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        
+        .field { margin-bottom: 15px; }
+        label { display: block; font-size: 0.75rem; font-weight: bold; color: #64748b; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #f1f5f9; border-radius: 10px; box-sizing: border-box; }
+        
+        .btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 5px; }
+        .btn-print { background: var(--primary); color: white; }
+        .btn-add { background: #e2e8f0; color: var(--dark); font-size: 0.8rem; }
+        
+        .history-item { background: #1e293b; padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; width: 100%; max-width: 450px; }
+        .admin-section { border-top: 2px dashed #cbd5e1; margin-top: 20px; padding-top: 20px; }
+    </style>
+</head>
+<body>
+
+<!-- SECCIÓN DE VENTAS -->
+<div class="card">
+    <h2>🚀 NUEVA VENTA</h2>
+    <div class="field">
+        <label>SELECCIONAR PASAJERO GUARDADO</label>
+        <select id="selectPasajeros">
+            <option value="">-- Seleccionar --</option>
+        </select>
+    </div>
+    <div class="field">
+        <label>NOMBRE (EDITABLE)</label>
+        <input type="text" id="nombreVenta">
+    </div>
+    <div class="field">
+        <label>TARIFA ($)</label>
+        <input type="number" id="montoVenta" step="0.01">
+    </div>
+    <button class="btn btn-print" id="btnImprimir">IMPRIMIR Y GUARDAR</button>
+</div>
+
+<!-- SECCIÓN DE ADMINISTRACIÓN (Aquí agregas nombres) -->
+<div class="card admin-section">
+    <h2>👥 GESTIONAR PASAJEROS</h2>
+    <div class="field">
+        <input type="text" id="nuevoNombre" placeholder="Nombre del nuevo cliente">
+    </div>
+    <div class="field">
+        <input type="number" id="nuevoPrecio" placeholder="Precio sugerido" step="0.01">
+    </div>
+    <button class="btn btn-add" id="btnGuardarCliente">+ AGREGAR A LA LISTA</button>
+</div>
+
+<div id="listaHistorial" style="width:100%; max-width:450px;"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCJiaaUF3aLHbhEYJcOtHo9uGIUKEzBrqs",
+        authDomain: "expreso-yuand.firebaseapp.com",
+        projectId: "expreso-yuand",
+        storageBucket: "expreso-yuand.firebasestorage.app",
+        messagingSenderId: "183741286991",
+        appId: "1:183741286991:web:1099688d66df2aa68e9533"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- 1. GESTIÓN DE CLIENTES (LISTA DESPLEGABLE) ---
+    
+    // Guardar nuevo cliente en la nube
+    document.getElementById('btnGuardarCliente').addEventListener('click', async () => {
+        const nombre = document.getElementById('nuevoNombre').value;
+        const precio = document.getElementById('nuevoPrecio').value;
+        if(nombre && precio) {
+            await addDoc(collection(db, "clientes"), { nombre, precio: parseFloat(precio) });
+            document.getElementById('nuevoNombre').value = "";
+            document.getElementById('nuevoPrecio').value = "";
+            alert("Cliente guardado en la nube");
+        }
+    });
+
+    // Cargar clientes en el select automáticamente
+    onSnapshot(collection(db, "clientes"), (snapshot) => {
+        const select = document.getElementById('selectPasajeros');
+        select.innerHTML = '<option value="">-- Seleccionar --</option>';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const opt = document.createElement('option');
+            opt.value = data.nombre;
+            opt.dataset.precio = data.precio;
+            opt.textContent = `${data.nombre} ($${data.precio})`;
+            select.appendChild(opt);
+        });
+    });
+
+    // Al elegir del select, rellenar los campos de arriba
+    document.getElementById('selectPasajeros').addEventListener('change', (e) => {
+        const opt = e.target.options[e.target.selectedIndex];
+        if(opt.value) {
+            document.getElementById('nombreVenta').value = opt.value;
+            document.getElementById('montoVenta').value = opt.dataset.precio;
+        }
+    });
+
+    // --- 2. GESTIÓN DE VENTAS E IMPRESIÓN ---
+
+    document.getElementById('btnImprimir').addEventListener('click', async () => {
+        const nombre = document.getElementById('nombreVenta').value;
+        const monto = parseFloat(document.getElementById('montoVenta').value);
+        const fecha = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        if (nombre && monto) {
+            await addDoc(collection(db, "viajes"), { nombre, monto, timestamp: new Date(), hora: fecha });
+            let ticket = `--------------------------------\n      EXPRESO YUAND\n--------------------------------\nHORA: ${fecha}\nCLIENTE: ${nombre.toUpperCase()}\nTOTAL: $${monto.toFixed(2)}\n--------------------------------\n      ¡BUEN VIAJE!\n\n\n`;
+            window.location.href = "intent:#Intent;component=ru.a402nd.rawbt/.ActivityPrint;S.text=" + encodeURIComponent(ticket) + ";end;";
+        }
+    });
+
+    // Historial de viajes en tiempo real
+    const qVentas = query(collection(db, "viajes"), orderBy("timestamp", "desc"));
+    onSnapshot(qVentas, (snapshot) => {
+        const lista = document.getElementById('listaHistorial');
+        lista.innerHTML = '<h3 style="text-align:center">HISTORIAL DE HOY</h3>';
+        snapshot.forEach(doc => {
+            const v = doc.data();
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `<span>${v.nombre}</span><b>$${v.monto.toFixed(2)}</b>`;
+            lista.appendChild(item);
+        });
+    });
+</script>
+</body>
+</html>
